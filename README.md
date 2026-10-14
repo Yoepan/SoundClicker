@@ -1,6 +1,6 @@
 # SoundClicker
 
-[![Release](https://img.shields.io/badge/Release-v2.1-181B22?style=for-the-badge&logo=github)](https://github.com/)
+[![Release](https://img.shields.io/badge/Release-v2.1-181B22?style=for-the-badge&logo=github)](https://github.com/Yoepan/SoundClicker/releases/tag/v2.1.0)
 [![Platform](https://img.shields.io/badge/Platform-Windows-181B22?style=for-the-badge&logo=windows)](https://github.com/)
 [![Python](https://img.shields.io/badge/Python-3.9+-181B22?style=for-the-badge&logo=python)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-181B22?style=for-the-badge)](LICENSE)
