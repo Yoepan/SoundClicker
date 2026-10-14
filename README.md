@@ -7,6 +7,11 @@
 
 SoundClicker is an audio-activated automation utility for Windows. It monitors audio output from a target process using real-time FFT pattern recognition and triggers configured mouse actions whenever the target audio cue plays.
 
+<p align="center">
+   <img src="https://github.com/user-attachments/assets/8190b941-f269-47fd-a0e7-234ff4c73f60" width="48%" alt="Preview Menu">
+   <img src="https://github.com/user-attachments/assets/8c2392a3-0946-4564-9529-a12d0c63cac1" width="48%" alt="Menu Preview Menu Action Macro & Logs">
+</p>
+
 ## Key Capabilities
 
 - Process Audio Isolation (PID Capture): Captures audio output strictly from the selected application process. Background noise, browser tabs, Discord voice chat, and music do not affect detection.
