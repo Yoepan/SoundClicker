@@ -7,6 +7,7 @@ __pycache__/
 build/
 dist/
 *.manifest
+*.zip
 
 # Audio captures and temporary runtime logs
 recorded_sound.wav
