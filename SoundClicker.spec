@@ -19,7 +19,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['matplotlib', 'pandas', 'lxml', 'unittest'],
+    excludes=['matplotlib', 'pandas', 'lxml'],
     noarchive=False,
     optimize=0,
 )

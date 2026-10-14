@@ -5,7 +5,7 @@ cd /d "%~dp0"
 echo ===================================================
 echo         Building SoundClicker 2.1 to .exe
 echo ===================================================
-pyinstaller --noconfirm --onedir --windowed --icon="icon.ico" --name "SoundClicker" --collect-all customtkinter --collect-all proctap --exclude-module matplotlib --exclude-module pandas --exclude-module lxml --exclude-module unittest main.py
+pyinstaller --noconfirm --onedir --windowed --icon="icon.ico" --name "SoundClicker" --collect-all customtkinter --collect-all proctap --exclude-module matplotlib --exclude-module pandas --exclude-module lxml main.py
 if %errorlevel% neq 0 (
     echo.
     echo Build failed.
