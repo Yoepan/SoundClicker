@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller / Build outputs
+build/
+dist/
+*.manifest
+
+# Audio captures and temporary runtime logs
+recorded_sound.wav
+*.log
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE and Editor configurations
+.agents/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Operating System files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
