@@ -5,7 +5,7 @@ cd /d "%~dp0"
 echo ===================================================
 echo         Building SoundClicker 2.1 to .exe
 echo ===================================================
-pyinstaller --noconfirm --onedir --windowed --name "SoundClicker" --collect-all customtkinter --collect-all proctap main.py
+pyinstaller --noconfirm --onedir --windowed --icon="icon.ico" --name "SoundClicker" --collect-all customtkinter --collect-all proctap main.py
 if %errorlevel% neq 0 (
     echo.
     echo Build failed.
@@ -13,6 +13,7 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 
+copy /y icon.ico dist\SoundClicker\ >nul 2>&1
 copy /y recorded_splash.wav dist\SoundClicker\ >nul 2>&1
 copy /y splash_sample.wav dist\SoundClicker\ >nul 2>&1
 copy /y test_beep.wav dist\SoundClicker\ >nul 2>&1

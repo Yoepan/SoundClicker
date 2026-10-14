@@ -30,6 +30,19 @@ class SoundClickerApp(ctk.CTk):
         self.minsize(620, 750)
         self.configure(fg_color="#0C0D10")
 
+        try:
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Evanonymous.SoundClicker.2.1")
+        except Exception:
+            pass
+
+        base_dir = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else os.path.dirname(__file__)
+        icon_path = os.path.join(base_dir, "icon.ico")
+        if os.path.exists(icon_path):
+            try:
+                self.iconbitmap(icon_path)
+            except Exception:
+                pass
+
         self.is_running = False
         self.total_triggers = 0
         self.devices = AudioDeviceManager.get_devices()
