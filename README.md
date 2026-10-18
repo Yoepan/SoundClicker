@@ -18,6 +18,7 @@ SoundClicker is an audio-activated automation utility for Windows. It monitors a
 - Background Window Delivery: Dispatches clicks directly to the target window using native Win32 `PostMessage`. The target window receives inputs without stealing cursor focus or breaking Alt-Tab workflows.
 - Visual Coordinate Picker: Click to select Point 1 and Point 2 on your screen. The application automatically resolves target window handles, process identifiers, and client coordinates.
 - Multi-Action Macro Sequences: Supports single clicks, double clicks, and two-point sequences (Click 1 -> Delay -> Click 2) with customizable delays and cooldown intervals.
+- Idle Auto-Click Fallback: Automatically triggers a fallback action if no click activity occurs for a user-specified duration (in minutes), seamlessly enforcing detection cooldown to prevent false audio re-triggers.
 - Anti-Detection Jitter: Randomizes click duration (+/-35 ms) and coordinates (+/-3 px) to prevent identical repeat patterns.
 - Hotkey Control: Global shortcut `F6` toggles active listening from within fullscreen or windowed games.
 - Pure Monochrome UI: Minimalist dark interface built on CustomTkinter with collapsible controls and optional telemetry logging.
@@ -51,7 +52,7 @@ SoundClicker is an audio-activated automation utility for Windows. It monitors a
    - SoundClicker automatically binds the target window handle and assigns PID audio isolation.
 3. Configure Macro:
    - Choose action type (Sequence, Single Click, or Double Click).
-   - Set delay and cooldown sliders as needed.
+   - Set delay, cooldown, and optional idle auto-click timeout sliders as needed.
 4. Start Detection:
    - Press `F6` or click **START LISTENING (F6)**.
 

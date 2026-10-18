@@ -1,9 +1,9 @@
 @echo off
-title Build SoundClicker 2.1 EXE
+title Build SoundClicker 2.2.0 EXE
 cd /d "%~dp0"
 
 echo ===================================================
-echo         Building SoundClicker 2.1 to .exe
+echo         Building SoundClicker 2.2.0 to .exe
 echo ===================================================
 pyinstaller --noconfirm --onedir --windowed --icon="icon.ico" --name "SoundClicker" --collect-all customtkinter --collect-all proctap --exclude-module matplotlib --exclude-module pandas --exclude-module lxml main.py
 if %errorlevel% neq 0 (

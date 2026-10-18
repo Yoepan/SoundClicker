@@ -25,13 +25,13 @@ class SoundClickerApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("SoundClicker 2.1 - By Evanonymous")
+        self.title("SoundClicker 2.2.0 - By Evanonymous")
         self.geometry("680x880")
         self.minsize(620, 750)
         self.configure(fg_color="#0C0D10")
 
         try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Evanonymous.SoundClicker.2.1")
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Evanonymous.SoundClicker.2.2.0")
         except Exception:
             pass
 
@@ -45,6 +45,8 @@ class SoundClickerApp(ctk.CTk):
 
         self.is_running = False
         self.total_triggers = 0
+        self.last_action_time = 0.0
+        self.idle_timer_id = None
         self.devices = AudioDeviceManager.get_devices()
         self.selected_device_obj = None
 
@@ -79,7 +81,7 @@ class SoundClickerApp(ctk.CTk):
         self._register_hotkey()
 
         self.protocol("WM_DELETE_WINDOW", self._on_close)
-        self._log("SoundClicker 2.1 initialized. Ready.")
+        self._log("SoundClicker 2.2.0 initialized. Ready.")
 
     def _build_ui(self):
         self.main_frame = ctk.CTkScrollableFrame(
@@ -106,7 +108,7 @@ class SoundClickerApp(ctk.CTk):
 
         app_title = ctk.CTkLabel(
             title_box,
-            text="SOUNDCLICKER 2.1",
+            text="SOUNDCLICKER 2.2.0",
             font=ctk.CTkFont(family="Segoe UI", size=20, weight="bold"),
             text_color="#FFFFFF"
         )
@@ -862,6 +864,53 @@ class SoundClickerApp(ctk.CTk):
         )
         self.cool_display_pill.pack(side="right")
 
+        idle_row = ctk.CTkFrame(self.macro_body, fg_color="transparent")
+        idle_row.pack(fill="x", pady=4)
+
+        self.idle_click_chk = ctk.CTkCheckBox(
+            idle_row,
+            text="Idle Auto-Click:",
+            font=ctk.CTkFont(family="Segoe UI", size=12),
+            text_color="#9CA3AF",
+            width=120,
+            fg_color="#374151",
+            hover_color="#4B5563",
+            border_color="#4B5563",
+            checkmark_color="#FFFFFF",
+            corner_radius=4,
+            command=self._on_idle_toggle
+        )
+        self.idle_click_chk.pack(side="left")
+
+        self.idle_slider = ctk.CTkSlider(
+            idle_row,
+            from_=0.5,
+            to=15.0,
+            number_of_steps=29,
+            height=14,
+            fg_color="#181B22",
+            progress_color="#4B5563",
+            button_color="#E5E7EB",
+            button_hover_color="#FFFFFF",
+            command=self._on_idle_slider_change
+        )
+        self.idle_slider.set(2.0)
+        self.idle_slider.pack(side="left", fill="x", expand=True, padx=(0, 10))
+
+        self.idle_display_pill = ctk.CTkLabel(
+            idle_row,
+            text="Off",
+            font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
+            fg_color="#181B22",
+            border_width=1,
+            border_color="#2A2F3A",
+            corner_radius=5,
+            text_color="#9CA3AF",
+            width=46,
+            pady=2
+        )
+        self.idle_display_pill.pack(side="right")
+
         opts_frame = ctk.CTkFrame(
             self.macro_body,
             fg_color="#0E1015",
@@ -1194,6 +1243,8 @@ class SoundClickerApp(ctk.CTk):
             return None
 
     def _test_point(self, point_num: int):
+        if self.is_running:
+            self.last_action_time = time.time()
         pt = self._get_entry_point(point_num)
         if pt is None:
             self._log(f"Point {point_num} has invalid coordinates.")
@@ -1361,6 +1412,45 @@ class SoundClickerApp(ctk.CTk):
     def _on_beep_toggle(self):
         self.clicker.enable_beep = bool(self.beep_chk.get() == 1)
 
+    def _on_idle_toggle(self):
+        if self.idle_click_chk.get() == 1:
+            val = round(float(self.idle_slider.get()), 1)
+            self.idle_display_pill.configure(text=f"{val:.1f}m", text_color="#E5E7EB")
+            self._log(f"Idle Auto-Click enabled: triggers if no click for {val:.1f} min.")
+        else:
+            self.idle_display_pill.configure(text="Off", text_color="#9CA3AF")
+            self._log("Idle Auto-Click disabled.")
+
+    def _on_idle_slider_change(self, value):
+        val = round(float(value), 1)
+        if self.idle_click_chk.get() == 0:
+            self.idle_click_chk.select()
+        self.idle_display_pill.configure(text=f"{val:.1f}m", text_color="#E5E7EB")
+
+    def _schedule_idle_check(self):
+        if self.idle_timer_id:
+            try:
+                self.after_cancel(self.idle_timer_id)
+            except Exception:
+                pass
+            self.idle_timer_id = None
+        if self.is_running:
+            self.idle_timer_id = self.after(1000, self._check_idle_timeout)
+
+    def _check_idle_timeout(self):
+        if not self.is_running:
+            return
+
+        if self.idle_click_chk.get() == 1:
+            idle_limit_sec = float(self.idle_slider.get()) * 60.0
+            now = time.time()
+            if self.last_action_time > 0 and (now - self.last_action_time) >= idle_limit_sec:
+                if not self.clicker.is_busy and not self.detector.is_in_cooldown:
+                    self._execute_macro_action(trigger_source="idle")
+
+        if self.is_running:
+            self.idle_timer_id = self.after(1000, self._check_idle_timeout)
+
     def _init_default_device(self):
         default_lb = AudioDeviceManager.get_default_loopback()
         if default_lb:
@@ -1434,6 +1524,8 @@ class SoundClickerApp(ctk.CTk):
                     self._log("Notice: Target window not selected yet. Capturing loopback until window is chosen.")
 
             self.is_running = True
+            self.last_action_time = time.time()
+            self._schedule_idle_check()
             self.clicker.play_beep(1350, 100)
             self.toggle_btn.configure(
                 text="STOP LISTENING (F6)",
@@ -1450,6 +1542,12 @@ class SoundClickerApp(ctk.CTk):
             self._log("Listening active.")
         else:
             self.is_running = False
+            if self.idle_timer_id:
+                try:
+                    self.after_cancel(self.idle_timer_id)
+                except Exception:
+                    pass
+                self.idle_timer_id = None
             self.clicker.play_beep(750, 100)
             self.toggle_btn.configure(
                 text="START LISTENING (F6)",
@@ -1516,6 +1614,10 @@ class SoundClickerApp(ctk.CTk):
 
         self.cool_slider.set(3.0)
         self._on_cooldown_change(3.0)
+
+        self.idle_slider.set(2.0)
+        self.idle_click_chk.deselect()
+        self.idle_display_pill.configure(text="Off", text_color="#9CA3AF")
 
         self.delivery_mode_dropdown.set("Background (PostMessage - Alt-Tab Safe)")
         self._on_delivery_mode_change("Background (PostMessage - Alt-Tab Safe)")
@@ -1592,26 +1694,43 @@ class SoundClickerApp(ctk.CTk):
         self.after(0, self._handle_sound_triggered, match_score)
 
     def _handle_sound_triggered(self, match_score: float):
+        self._execute_macro_action(trigger_source="sound", match_score=match_score)
+
+    def _execute_macro_action(self, trigger_source: str = "sound", match_score=None):
         if not self.is_running:
             return
 
+        self.last_action_time = time.time()
         self.total_triggers += 1
         self.trigger_pill.configure(text=f"TRIGGERS: {self.total_triggers}")
-        self._log(f"Sound matched: {int(match_score * 100)}%")
 
-        self.status_pill.configure(
-            text="TRIGGERED",
-            fg_color="#374151",
-            text_color="#FFFFFF"
-        )
-
-        mode_choice = self.action_mode_dropdown.get()
-        if "Single" in mode_choice:
-            action_type = "single"
-        elif "Double" in mode_choice:
-            action_type = "double"
+        if trigger_source == "sound":
+            score_pct = int(match_score * 100) if match_score is not None else 0
+            self._log(f"Sound matched: {score_pct}%")
+            self.status_pill.configure(
+                text="TRIGGERED",
+                fg_color="#374151",
+                text_color="#FFFFFF"
+            )
         else:
-            action_type = "sequence"
+            idle_mins = float(self.idle_slider.get())
+            self._log(f"[Idle Fallback] Inactivity timeout reached ({idle_mins:.1f}m). Triggering single click fallback.")
+            self.status_pill.configure(
+                text="IDLE CLICK",
+                fg_color="#374151",
+                text_color="#FFFFFF"
+            )
+
+        if trigger_source == "idle":
+            action_type = "single"
+        else:
+            mode_choice = self.action_mode_dropdown.get()
+            if "Single" in mode_choice:
+                action_type = "single"
+            elif "Double" in mode_choice:
+                action_type = "double"
+            else:
+                action_type = "sequence"
 
         btn1 = "right" if "Right" in self.btn1_dropdown.get() else "left"
         btn2 = "right" if "Right" in self.btn2_dropdown.get() else "left"
@@ -1635,12 +1754,14 @@ class SoundClickerApp(ctk.CTk):
         pixel_jitter_radius = 3 if use_pixel_jitter else 0
         restore_cursor = bool(self.restore_cursor_chk.get() == 1)
 
-        self.detector.trigger_external_cooldown(delay + 2.0)
+        prep_cooldown = (delay + 2.0) if action_type == "sequence" else 2.0
+        self.detector.trigger_external_cooldown(prep_cooldown)
 
         def step_cb(msg: str):
             self.after(0, self._log, msg)
 
         def complete_cb():
+            self.last_action_time = time.time()
             self.detector.clear_buffer()
             self.detector.trigger_external_cooldown(cooldown)
             self.after(0, self._on_action_finished, cooldown)
@@ -1696,6 +1817,12 @@ class SoundClickerApp(ctk.CTk):
 
     def _on_close(self):
         self.is_running = False
+        if self.idle_timer_id:
+            try:
+                self.after_cancel(self.idle_timer_id)
+            except Exception:
+                pass
+            self.idle_timer_id = None
         self.detector.stop()
         if keyboard is not None:
             try:
