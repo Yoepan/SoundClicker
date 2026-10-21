@@ -29,7 +29,7 @@ SoundClicker is an audio-activated automation utility for Windows. It monitors a
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/SoundClicker.git
+   git clone https://github.com/yoepan/SoundClicker.git
    cd SoundClicker
    ```
 2. Install required packages:
